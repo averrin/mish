@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load assets %}
+{% load inplace_edit %}
+
+
+{% block title %}
+    Averr.in's Mish
+{% endblock %}
+
+{% block css %}
+{% assets "css_mish" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
+    <link rel="stylesheet" href="{{ STATIC }}css/smoothness/jquery-ui-1.8.12.custom.css">
+
+{% endblock %}
+
+{% block scripts %}
+    {% inplace_media %}
+    <script type="text/javascript" src="{{ STATIC }}js/mylibs/favic.js"></script>
+    <script type="text/javascript" src="{{ STATIC }}js/libs/jquery-ui-1.8.12.custom.min.js"></script>
+     <script type="text/javascript" src="{{ STATIC }}js/libs/search.js"></script>
+    <script type="text/javascript">
+
+
+
+
+    $(function(){
+        $('a').urlfavicon({Default: '{{ STATIC }}images/close_icon.gif'});
+        $('a img').addClass('favic');
+        			$('li').hover(function() {
+		$(this).addClass('ui-state-hover');
+		}, function() {
+		$(this).removeClass('ui-state-hover');
+		}
+		);
+        $('li').click(function(e){
+            var clicked = jQuery(e.target);
+            if(clicked.is('li')){
+            window.open($('a',this).attr('href'), '_blank');
+            }
+        });
+        $('.del').click(function(){
+            location = "{% url mish.views.del_link %}"+$(this).attr('id')
+        });
+//		$( "#datepicker" ).datepicker();
+    })
+
+    $('input[name="q"]').search('.link', function(on) {
+  on.reset(function() {
+    $('.link').show();
+  });
+
+  on.empty(function() {
+    $('#empty-message').show();
+  });
+
+  on.results(function(results) {
+    $('.link').hide();
+    results.show();
+  });
+});
+
+    </script>
+{% endblock %}
+
+{% block body %}
+
+            {% if form.errors %}
+        <div class='loginerror'>
+            {% for field,err in form.errors.items %}
+                {% if not forloop.counter0 %}
+                        {{ err|striptags }}
+                {% endif %}
+            {% endfor %}
+        <span class="hide">[ <a href="javascript://">:{%  trans "hide" %}</a> ]</span>
+        </div>
+    {% endif %}
+
+    <div class='cont'>
+    <div  class="right col">
+    <img src="{{ STATIC }}images/mish_r.jpg" style="width: 380px;">
+        {% inplace_edit "wall.wall_text|linebreaks|safe"  auto_height=1, auto_width=1, class_inplace="wallta" %}
+</div>
+        <h1>Я домашняя страничка Мауси! <img src='http://fc09.deviantart.net/fs11/i/2006/179/4/3/mouse_by_zoik.gif' style='margin-bottom: -8px;'></h1>
+        <form method="post" action=".">
+            {% csrf_token %}
+        <p class="ui-state-default ui-corner-all form">
+            Текст:
+            {{ form.title }}
+            Ссылка: 
+            {{ form.url }}
+        <button class="button sendform right send">Отправить</button>
+        </p>
+            <input type="submit" style="position: absolute; left: -9999px"/>
+        </form>
+    <p class="ui-state-default ui-corner-all form">
+        <input name=q style="width: 100%">
+    </p>
+        <div class="links left">
+    <ul>
+        {% for link in links %}
+            <li class="ui-state-default ui-corner-all link"><a href="{{ link }}" target="_blank">{{ link.title }}</a> <button class="right negative del" id="{{ link.id }}">del</button> </li>
+        {% endfor %}
+    </ul>
+    <div class="calendar">
+<iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showCalendars=0&amp;showTz=0&amp;height=350&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src=dsuponenko%40gmail.com&amp;color=%23182C57&amp;ctz=Europe%2FMoscow" style=" border-width:0 " width="500" height="350" frameborder="0" scrolling="no"></iframe>
+    </div>
+    </div></div>
+{% endblock %}
